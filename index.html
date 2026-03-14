@@ -456,11 +456,11 @@
     z-index: -1;
     animation: borderShimmer 3s ease-in-out infinite;
   }
-  .gift-card-container iframe {
+  .gift-card-container img {
     display: block;
     border-radius: 10px;
-    border: none;
-    background: white;
+    max-width: 100%;
+    height: auto;
   }
   @keyframes giftAppear {
     0% { opacity: 0; transform: scale(0.5) rotateY(90deg); }
@@ -1182,11 +1182,10 @@ window.showGiftReveal = function() {
       <p class="gift-subtitle">You conquered the quest. Now... take the leap.</p>
 
       <div class="adventure-title">Telemark Opplevelser</div>
-      <p style="color: #aaa; font-size: 0.95rem; margin-bottom: 5px;">A bungee jumping adventure fit for a fearless knight</p>
-      <p style="color: var(--gold); font-size: 1.1rem; margin-bottom: 20px;"><strong>KR 1 590</strong> \u{2014} Gift Card Code: <strong>85Ldg52</strong></p>
+      <p style="color: #aaa; font-size: 0.95rem; margin-bottom: 20px;">A bungee jumping adventure fit for a fearless knight</p>
 
       <div class="gift-card-container">
-        <iframe src="giftcard.pdf" width="380" height="540" title="Telemark Opplevelser Gift Card"></iframe>
+        <img src="giftcard-preview.jpeg" width="420" alt="Bungee jumping gift card from Maria" />
       </div>
 
       <div class="gift-message">
