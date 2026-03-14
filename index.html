@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Legend of Sir Rafal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #d4a843;
+    --gold-light: #f0d68a;
+    --brown: #3d1c02;
+    --brown-light: #8b5e3c;
+    --dark: #0f0a05;
+    --cream: #fdf6e3;
+    --red: #c0392b;
+    --green: #27ae60;
+    --blue: #2980b9;
+    --stone: #2a2318;
+  }
+
+  body {
+    font-family: 'Lora', serif;
+    background: var(--dark);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== TORCH PARTICLE BACKGROUND ===== */
+  .embers {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+  .ember {
+    position: absolute;
+    background: radial-gradient(circle, rgba(255,150,50,0.8), rgba(255,100,20,0) 70%);
+    border-radius: 50%;
+    animation: emberFloat var(--dur) ease-in-out infinite;
+  }
+  @keyframes emberFloat {
+    0%, 100% { opacity: 0.1; transform: translateY(0) scale(1); }
+    50% { opacity: 0.7; transform: translateY(calc(var(--drift) * -1)) scale(1.3); }
+  }
+
+  /* Stone texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(139,94,60,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(212,168,67,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(139,94,60,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== MAIN CONTAINER ===== */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 700px; margin: 0 auto; padding: 20px;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+
+  /* ===== TITLE SCREEN ===== */
+  .title-screen {
+    text-align: center;
+    animation: fadeInUp 1.5s ease;
+  }
+  .title-screen h1 {
+    font-family: 'MedievalSharp', cursive;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(212, 168, 67, 0.5), 0 2px 4px rgba(0,0,0,0.8);
+    margin-bottom: 10px;
+    animation: torchGlow 3s ease-in-out infinite;
+  }
+  .title-screen .shield {
+    font-size: 5rem;
+    animation: float 2s ease-in-out infinite;
+    display: block;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 20px rgba(212,168,67,0.4));
+  }
+  .title-screen .subtitle {
+    font-family: 'Cinzel', serif;
+    font-style: italic;
+    color: var(--gold-light);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    opacity: 0.8;
+  }
+  .title-screen .tagline {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  @keyframes torchGlow {
+    0%, 100% { text-shadow: 0 0 30px rgba(212,168,67,0.5), 0 2px 4px rgba(0,0,0,0.8); }
+    50% { text-shadow: 0 0 60px rgba(255,150,50,0.8), 0 0 100px rgba(212,168,67,0.3), 0 2px 4px rgba(0,0,0,0.8); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== LEVEL SCREEN ===== */
+  .level-screen {
+    text-align: center;
+    animation: fadeInUp 0.8s ease;
+    width: 100%;
+  }
+  .level-header {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .level-title {
+    font-family: 'MedievalSharp', cursive;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  }
+  .level-emoji {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+    animation: float 2.5s ease-in-out infinite;
+  }
+  .story-text {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: #ccc;
+    line-height: 1.8;
+    margin-bottom: 25px;
+    font-size: 1rem;
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .narrator {
+    color: var(--gold);
+    font-weight: 700;
+    font-style: normal;
+    font-family: 'Cinzel', serif;
+  }
+  .podcast {
+    color: #ff9f43;
+    font-weight: 700;
+    font-size: 1.3em;
+    font-style: normal;
+    animation: podcastPulse 0.5s ease;
+  }
+  @keyframes podcastPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  /* ===== PUZZLE AREA ===== */
+  .puzzle-area {
+    background: rgba(61,28,2,0.3);
+    border: 1px solid rgba(212,168,67,0.3);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    width: 100%;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+  }
+  .puzzle-instruction {
+    font-family: 'Inter', sans-serif;
+    color: var(--gold-light);
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+  }
+
+  /* Text input */
+  .answer-input {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    padding: 12px 20px;
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.4);
+    color: var(--cream);
+    text-align: center;
+    width: 100%;
+    max-width: 350px;
+    outline: none;
+    transition: all 0.3s;
+  }
+  .answer-input:focus {
+    border-color: var(--gold-light);
+    box-shadow: 0 0 20px rgba(255,150,50,0.3);
+  }
+  .answer-input::placeholder { color: #666; }
+
+  /* Option buttons */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 15px 0;
+  }
+  .option-btn {
+    font-family: 'Inter', sans-serif;
+    padding: 14px 16px;
+    border: 2px solid rgba(212,168,67,0.4);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.3);
+    color: var(--cream);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+  .option-btn:hover {
+    border-color: var(--gold);
+    background: rgba(212,168,67,0.15);
+    transform: translateY(-2px);
+  }
+  .option-btn.selected {
+    border-color: var(--gold);
+    background: rgba(212,168,67,0.2);
+  }
+  .option-btn.correct {
+    border-color: var(--green) !important;
+    background: rgba(39,174,96,0.2) !important;
+    animation: correctPulse 0.5s ease;
+  }
+  .option-btn.wrong {
+    border-color: var(--red) !important;
+    background: rgba(192,57,43,0.2) !important;
+    animation: shake 0.5s ease;
+  }
+  @keyframes correctPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  /* Sequence / drag puzzle */
+  .sequence-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 15px 0;
+  }
+  .seq-letter {
+    font-family: 'Inter', sans-serif;
+    width: 45px; height: 45px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.4);
+    color: var(--cream);
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .seq-letter:hover { background: rgba(212,168,67,0.2); transform: scale(1.1); }
+  .seq-letter.used { opacity: 0.3; pointer-events: none; }
+
+  .answer-display {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.5rem;
+    letter-spacing: 8px;
+    color: var(--gold);
+    margin: 15px 0;
+    min-height: 40px;
+    border-bottom: 2px solid rgba(212,168,67,0.3);
+    padding-bottom: 5px;
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    font-family: 'Cinzel', serif;
+    padding: 14px 40px;
+    border: 2px solid var(--gold);
+    border-radius: 50px;
+    background: transparent;
+    color: var(--gold);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 15px;
+    letter-spacing: 1px;
+  }
+  .btn:hover {
+    background: var(--gold);
+    color: var(--dark);
+    box-shadow: 0 0 30px rgba(255,150,50,0.4);
+    transform: translateY(-2px);
+  }
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-small {
+    font-family: 'Inter', sans-serif;
+    padding: 8px 20px;
+    font-size: 0.85rem;
+    letter-spacing: 0;
+  }
+  .clear-btn {
+    border-color: #666;
+    color: #999;
+    font-family: 'Inter', sans-serif;
+    padding: 8px 20px;
+    font-size: 0.8rem;
+    margin-top: 10px;
+  }
+  .clear-btn:hover { background: #333; color: #fff; border-color: #999; }
+
+  /* ===== FEEDBACK ===== */
+  .feedback {
+    margin-top: 15px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    animation: fadeInUp 0.3s ease;
+  }
+  .feedback.wrong {
+    background: rgba(192,57,43,0.2);
+    border: 1px solid rgba(192,57,43,0.5);
+    color: #ff6b6b;
+  }
+  .feedback.correct {
+    background: rgba(39,174,96,0.2);
+    border: 1px solid rgba(39,174,96,0.5);
+    color: #6bff8a;
+  }
+  .feedback.hint {
+    background: rgba(41,128,185,0.2);
+    border: 1px solid rgba(41,128,185,0.5);
+    color: #6bb5ff;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--brown-light), var(--gold), var(--gold-light));
+    transition: width 0.5s ease;
+    z-index: 100;
+    box-shadow: 0 0 10px rgba(255,150,50,0.5);
+  }
+
+  /* ===== CONFETTI ===== */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 200;
+    animation: confettiFall var(--fall-dur) linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== KNIGHT RUNNING ===== */
+  .knight-run {
+    position: fixed;
+    bottom: 20px;
+    font-size: 2rem;
+    animation: runAcross 4s linear;
+    z-index: 50;
+    pointer-events: none;
+  }
+  @keyframes runAcross {
+    0% { left: -50px; }
+    100% { left: calc(100vw + 50px); }
+  }
+
+  /* ===== FINAL SCREEN ===== */
+  .final-screen {
+    text-align: center;
+    animation: fadeInUp 1s ease;
+  }
+  .final-screen h1 {
+    font-family: 'MedievalSharp', cursive;
+    font-size: clamp(2rem, 6vw, 3rem);
+    color: var(--gold);
+    margin-bottom: 20px;
+    text-shadow: 0 0 30px rgba(255,150,50,0.5);
+  }
+  .birthday-text {
+    font-size: 1.3rem;
+    color: var(--cream);
+    line-height: 1.8;
+    margin: 20px 0;
+  }
+  .final-emoji {
+    font-size: 5rem;
+    animation: float 2s ease-in-out infinite;
+    margin: 20px 0;
+  }
+
+  /* ===== GIFT CARD REVEAL ===== */
+  .gift-reveal {
+    text-align: center;
+    animation: fadeInUp 1.2s ease;
+  }
+  .gift-reveal h1 {
+    font-family: 'MedievalSharp', cursive;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .gift-subtitle {
+    color: var(--gold-light);
+    font-style: italic;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+  }
+  .gift-card-container {
+    position: relative;
+    display: inline-block;
+    margin: 20px 0;
+    animation: giftAppear 1.5s ease;
+  }
+  .gift-card-container::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(45deg, var(--brown-light), var(--gold), #fff, var(--gold-light), var(--brown-light));
+    background-size: 400% 400%;
+    border-radius: 14px;
+    z-index: -1;
+    animation: borderShimmer 3s ease-in-out infinite;
+  }
+  .gift-card-container iframe {
+    display: block;
+    border-radius: 10px;
+    border: none;
+    background: white;
+  }
+  @keyframes giftAppear {
+    0% { opacity: 0; transform: scale(0.5) rotateY(90deg); }
+    50% { opacity: 1; transform: scale(1.05) rotateY(0deg); }
+    70% { transform: scale(0.98); }
+    100% { transform: scale(1); }
+  }
+  @keyframes borderShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .gift-sparkle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    font-size: 1.5rem;
+    animation: sparkleFloat var(--dur) ease-out forwards;
+  }
+  @keyframes sparkleFloat {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.3); }
+  }
+  .gift-message {
+    color: var(--cream);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin: 25px 0;
+  }
+  .adventure-title {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.8rem;
+    color: var(--gold-light);
+    animation: torchGlow 3s ease-in-out infinite;
+    margin: 10px 0 5px;
+  }
+  .gift-download-btn {
+    font-family: 'Cinzel', serif;
+    display: inline-block;
+    padding: 14px 40px;
+    border: 2px solid var(--gold);
+    border-radius: 50px;
+    background: linear-gradient(135deg, rgba(212,168,67,0.2), rgba(212,168,67,0.05));
+    color: var(--gold);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    margin-top: 10px;
+  }
+  .gift-download-btn:hover {
+    background: var(--gold);
+    color: var(--dark);
+    box-shadow: 0 0 40px rgba(255,150,50,0.5);
+    transform: translateY(-2px);
+  }
+
+  /* ===== MATCHING PUZZLE ===== */
+  .match-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: start;
+    margin: 15px 0;
+  }
+  .match-left, .match-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .match-item {
+    padding: 10px 14px;
+    border: 2px solid rgba(212,168,67,0.4);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+  .match-item:hover { border-color: var(--gold); }
+  .match-item.active { border-color: var(--gold); background: rgba(212,168,67,0.2); }
+  .match-item.matched { border-color: var(--green); background: rgba(39,174,96,0.15); opacity: 0.7; pointer-events: none; }
+  .match-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--gold);
+    padding-top: 10px;
+  }
+
+  /* ===== SLIDER PUZZLE ===== */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+    font-family: 'Inter', sans-serif;
+  }
+  .slider-label { color: #aaa; font-size: 0.85rem; min-width: 120px; text-align: right; }
+  .slider-row input[type="range"] { flex: 1; accent-color: var(--gold); }
+  .slider-value { color: var(--gold); font-weight: 600; min-width: 30px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 500px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .match-container { grid-template-columns: 1fr; }
+    .match-divider { display: none; }
+    .seq-letter { width: 38px; height: 38px; font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="embers" id="embers"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="container" id="app"></div>
+
+<script>
+// ===== GAME STATE =====
+const state = { level: 0, attempts: {} };
+
+// ===== LEVEL DATA =====
+const levels = [
+  // TITLE SCREEN (level 0)
+  null,
+
+  // LEVEL 1: The Craftsman's Calling
+  {
+    title: "The Craftsman's Calling",
+    emoji: "\u{1F528}",
+    story: `<span class="narrator">In the ancient Kingdom of Poland,</span> there lived a craftsman of legendary skill. His name was Rafal — a man who could build anything with his bare hands. Furniture so beautiful it made the nobility weep. Engines so finely tuned they purred like contented cats.<br><br>But on the eve of a great birthday — his <em>fortieth year</em> — a mysterious raven arrived bearing a scroll sealed with Nordic wax...<br><br><em>"Treasures beyond imagination await in the Northern Kingdom of Norway. But only the worthy may claim them."</em><br><br><span class="podcast">The Podcast Oracle speaks!</span><br><br>And boy, did he speak. For approximately 45 minutes. Without pause.`,
+    puzzle: "unscramble",
+    instruction: "Unscramble the letters to reveal the name of the distant land calling to Sir Rafal:",
+    scrambled: "AYRONW",
+    answer: "NORWAY",
+    hint: "The land of fjords and people who stand 3 meters apart at bus stops...",
+    successMsg: "The Northern Kingdom calls! Sir Rafal must answer — but first, he must prepare for the journey!"
+  },
+
+  // LEVEL 2: Farewell to the Brotherhood
+  {
+    title: "Farewell to the Brotherhood",
+    emoji: "\u{1F3F0}",
+    story: `<span class="narrator">Chapter II.</span> Before departing, Sir Rafal had to say farewell to his sworn brother — Sir Arthur, his companion since childhood. They had grown up together in the Polish lands, shared battles, shared feasts, and shared an unhealthy number of opinions on absolutely everything.<br><br>Their farewell conversation lasted... well, nobody actually knows. Some say it's still going. The villagers could hear them from three kingdoms away.<br><br><span class="podcast">PODCAST MODE: ACTIVATED</span><br><br>Maria, the wise Lady of the realm, simply shook her head and whispered: <em>"There go the two podcasts again..."</em>`,
+    puzzle: "choice",
+    instruction: "What is Sir Rafal's legendary nickname, given by Lady Maria herself?",
+    options: [
+      { text: "\u{1F3A4} The Podcast", correct: true, response: "CORRECT! Because the man never stops talking! It's a feature, not a bug. Maria knows this well." },
+      { text: "\u{1F451} The Silent Knight", correct: false, response: "SILENT?! Have you MET Rafal? The man has opinions about opinions. And he will share ALL of them." },
+      { text: "\u{1F48E} The Whisperer", correct: false, response: "Whispering is physically impossible for Sir Rafal. His indoor voice IS his outdoor voice." },
+      { text: "\u{1F3B5} The Bard", correct: false, response: "Close — bards tell stories. But Rafal doesn't just tell stories, he tells EVERYTHING. About EVERYTHING. Forever." }
+    ],
+    successMsg: "Sir Arthur waved farewell (still talking). The journey north begins! \u{1F6E1}\u{FE0F}"
+  },
+
+  // LEVEL 3: The Craftsman's Arsenal
+  {
+    title: "The Craftsman's Arsenal",
+    emoji: "\u{1F6E0}\u{FE0F}",
+    story: `<span class="narrator">Chapter III.</span> A knight needs weapons. But Sir Rafal was no ordinary knight — his weapons were his <em>tools</em>. Wrenches that could tame the wildest ferry engines. Saws that carved furniture fit for kings. Hands that could fix anything ever built by human or dwarf.<br><br>He packed his legendary toolkit and also — because he is Rafal — his entire Garmin collection. The watch. The scale. The chest strap. The macro tracking scrolls.<br><br><em>"A warrior must know his stats,"</em> he declared solemnly, checking his heart rate zone.<br><br>He was in Zone 2. He was always in Zone 2. The man is a machine.`,
+    puzzle: "choice",
+    instruction: "Sir Rafal works on the ferries of Arendal. What exactly does he do on these vessels?",
+    options: [
+      { text: "\u{26F5} He captains the ship across the seas", correct: false, response: "Nay! Sir Rafal does not drive the ferry. He is FAR more important than that." },
+      { text: "\u{1F527} He fixes engines and maintains the ferries", correct: true, response: "YES! He keeps the heart of the vessels beating! Without Sir Rafal, the ferries of Arendal would be mere floating decorations." },
+      { text: "\u{1F37D}\u{FE0F} He runs the onboard restaurant", correct: false, response: "He IS an incredible chef, but his kitchen is at home — where he creates culinary masterpieces AND catastrophic messes simultaneously." },
+      { text: "\u{1F3A4} He entertains passengers with tales", correct: false, response: "He COULD do this — and would be excellent at it — but no. His talents lie below deck, with the engines." }
+    ],
+    successMsg: "Tools packed, Garmin charged, macros calculated. The craftsman-knight rides north! \u{2694}\u{FE0F}"
+  },
+
+  // LEVEL 4: Crossing the Baltic Sea
+  {
+    title: "Crossing the Baltic Sea",
+    emoji: "\u{26F5}",
+    story: `<span class="narrator">Chapter IV.</span> The Baltic Sea stretched before Sir Rafal like a vast, grey, extremely cold bathtub. Having spent years maintaining ferries, he knew exactly how to keep a vessel running — even in a medieval storm.<br><br>The winds howled. The waves crashed. Lesser men would have panicked.<br><br>Sir Rafal? He calmly opened YouTube on his enchanted mirror and watched a documentary about dung beetles. In a storm. On the open sea.<br><br><span class="podcast">PODCAST MODE: ACTIVATED</span><br><br>"Did you know," he announced to absolutely nobody, "that dung beetles navigate using the Milky Way?"<br><br>The seagulls left.`,
+    puzzle: "choice",
+    instruction: "What does Sir Rafal secretly watch on YouTube while Lady Maria tries to sleep?",
+    options: [
+      { text: "\u{1F3AC} Action movies and thrillers", correct: false, response: "Too predictable for a man of Rafal's refined tastes." },
+      { text: "\u{1F41B} Wildlife and insect documentaries", correct: true, response: "YES! The man watches INSECT VIDEOS in bed while Maria is trying to sleep. Beetles. Ants. Spiders. At midnight. Like a true medieval scholar." },
+      { text: "\u{1F4AA} Workout tutorials", correct: false, response: "He doesn't NEED tutorials. The man IS the tutorial. Have you seen his Garmin stats?" },
+      { text: "\u{1F373} Cooking shows", correct: false, response: "He doesn't watch cooking shows — he IS the cooking show. A very messy, very delicious cooking show." }
+    ],
+    successMsg: "Across the Baltic he sailed, armed with insect knowledge and zero fear. The Northern Kingdom draws near!"
+  },
+
+  // LEVEL 5: The Viking's Test of Strength
+  {
+    title: "The Viking's Test of Strength",
+    emoji: "\u{1F4AA}",
+    story: `<span class="narrator">Chapter V.</span> Sir Rafal arrived at the shores of Norway, where a massive Viking chieftain blocked the path.<br><br>"NONE may enter the Northern Kingdom," the Viking bellowed, "unless they prove their STRENGTH!"<br><br>Sir Rafal smiled. He had been preparing for this his entire life. Every bulk. Every cut. Every macro tracked with religious precision. Every Garmin data point analyzed like ancient scripture.<br><br>The Viking looked at this 40-year-old Polish man who was in better shape than warriors half his age, and felt... concerned.<br><br>"Wait," said the Viking. "Are you... are you in a bulk or a cut right now?"<br><br>"Always both," whispered Sir Rafal. "Always both."`,
+    puzzle: "matching",
+    instruction: "Match Sir Rafal's fitness equipment to its sacred purpose:",
+    pairs: [
+      { left: "Garmin Watch", right: "Tracks every step of the quest" },
+      { left: "Garmin Scale", right: "Monitors the bulk/cut progress" },
+      { left: "Chest Strap", right: "Guards the heart rate zones" },
+      { left: "Macro Scrolls", right: "Calculates the sacred nutrients" }
+    ],
+    successMsg: "The Viking stepped aside. 'You may pass, Sir Rafal. You are... terrifyingly fit for your age.'"
+  },
+
+  // LEVEL 6: The Feast of Chaos
+  {
+    title: "The Feast of Chaos",
+    emoji: "\u{1F373}",
+    story: `<span class="narrator">Chapter VI.</span> To celebrate his arrival, Sir Rafal decided to cook a grand feast for the Norwegian villagers. He was, after all, an INCREDIBLE chef. His food was legendary. His flavors were divine. His presentation was...<br><br>Well. Let's talk about the kitchen.<br><br>Imagine a battlefield. Now imagine that battlefield was hit by a second, smaller battlefield. Now add flour. And sauce. On the ceiling. Somehow BEHIND the refrigerator.<br><br><span class="podcast">CATASTROPHIC.</span><br><br>Lady Maria surveyed the damage and sighed the sigh of a woman who has seen this exact disaster four hundred times before.<br><br>But the FOOD? The food was absolutely magnificent. As always.`,
+    puzzle: "choice",
+    instruction: "What is the legendary paradox of Sir Rafal's cooking?",
+    options: [
+      { text: "\u{1F468}\u200D\u{1F373} Great recipes but terrible taste", correct: false, response: "His taste is IMPECCABLE! Every dish is a masterpiece. It's the PROCESS that's the problem." },
+      { text: "\u{1F4A5} Amazing food, catastrophic kitchen mess", correct: true, response: "EXACTLY! The food is divine. The kitchen looks like a war zone. Every. Single. Time. And the family wouldn't have it any other way." },
+      { text: "\u{23F0} Fast cooking but slow eating", correct: false, response: "Actually, Rafal would probably talk through the entire meal, so... the eating IS slow. But that's not the paradox." },
+      { text: "\u{1F4D6} He follows recipes but they're always wrong", correct: false, response: "Wrong? NEVER. Sir Rafal's food is always incredible. It's the cleanup crew that suffers." }
+    ],
+    successMsg: "The Norwegians ate like kings! The kitchen was declared a disaster zone. A perfect evening."
+  },
+
+  // LEVEL 7: The Language Riddle
+  {
+    title: "The Language Riddle",
+    emoji: "\u{1F4DC}",
+    story: `<span class="narrator">Chapter VII.</span> To reach the inner castle where the treasure was hidden, Sir Rafal had to pass through the Hall of Tongues — a chamber where only those who speak the Northern Language may enter.<br><br>Now, here's the thing about Sir Rafal and Norwegian: he understands FAR more than he ever let on. For years, he quietly absorbed the language, understanding conversations that people assumed went over his head.<br><br>The sneaky knight.<br><br>"Jeg forst\u00E5r mer enn dere tror," he declared, and the doors swung open.<br><br>Everyone's jaw dropped. Maria's jaw dropped the hardest.<br><br><em>"I KNEW IT,"</em> she whispered.`,
+    puzzle: "riddle",
+    instruction: "Solve the riddle to unlock the Hall of Tongues:",
+    riddle: "I understand more than I speak,<br>I listen when others think I'm weak.<br>I learned in silence, word by word,<br>Until the day my voice was heard.<br><br>What language did Sir Rafal secretly master?",
+    answer: "NORWEGIAN",
+    accept: ["NORWEGIAN", "NORSK", "NORSE"],
+    hint: "The language of the Northern Kingdom... he's been learning it all along!",
+    successMsg: "The doors to the inner castle swing open! Sir Rafal's secret is revealed — he understood EVERYTHING all along!"
+  },
+
+  // LEVEL 8: The Great Outdoors Trial
+  {
+    title: "The Great Outdoors Trial",
+    emoji: "\u{26F0}\u{FE0F}",
+    story: `<span class="narrator">Chapter VIII.</span> The path to the treasure led through Norway's wildest mountains. Treacherous peaks. Freezing rivers. Dense forests where trolls were rumored to lurk.<br><br>For most knights, this would be terrifying.<br><br>For Sir Rafal? This was literally his idea of a perfect weekend. Hiking? He lives for it. Fishing? Give him a rod and he's happier than a king. Sleeping in tents? He's got his gear packed before you finish the sentence.<br><br>And here's the thing — at 40 years old, Sir Rafal is in better shape than knights half his age. The man is a MACHINE. His friends wheeze up small hills while Rafal jogs up mountains singing Polish folk songs.<br><br>The trolls took one look at him and decided to stay home.`,
+    puzzle: "choice",
+    instruction: "Which of these is NOT one of Sir Rafal's outdoor passions?",
+    options: [
+      { text: "\u{1F3D5}\u{FE0F} Hiking through mountains", correct: false, response: "He LOVES hiking! He could hike forever and not break a sweat. Well, he'd sweat. But he'd ENJOY it." },
+      { text: "\u{1F3A3} Fishing in quiet waters", correct: false, response: "Fishing is one of his great joys! Though 'quiet' is debatable when Rafal is involved. The fish can hear him coming." },
+      { text: "\u{1F3D6}\u{FE0F} Sunbathing on tropical beaches", correct: true, response: "CORRECT! Sir Rafal is a MOUNTAIN man, not a beach boy. He'd rather summit a peak than lie on sand." },
+      { text: "\u{26FA} Sleeping in tents under stars", correct: false, response: "Tent life is Rafal life! The man is genuinely more comfortable in the wild than most people are in their living rooms." }
+    ],
+    successMsg: "Through mountains and forests, Sir Rafal pressed on. Nothing in nature can stop this man!"
+  },
+
+  // LEVEL 9: The Panda's Heart
+  {
+    title: "The Panda's Heart",
+    emoji: "\u{1F43C}",
+    story: `<span class="narrator">Chapter IX.</span> Deep within the mountain castle, Sir Rafal found not gold, not jewels, but something the scroll had not mentioned: a mirror of truth.<br><br>The mirror showed him who he truly was. Not just a craftsman. Not just a knight. But a man of iron principles who stands by what he believes, even when the world pushes back. Honest — sometimes painfully so. He says what he thinks without a moment's doubt.<br><br>But also: a man who drives Lady Maria everywhere. Who takes her on adventures. Who provides her with calmness and safety. A man almost 10 years younger who somehow feels like the steady, older soul in the room.<br><br><span class="podcast">The Podcast Oracle whispers one final truth:</span><br><br>The real treasure was never gold. It was the people he carries in his heart. Maria. Arthur. Victor. Everyone who knows that beneath the endless talking and the strong opinions, there beats the heart of the most loyal, caring, and dependable man you could ever know.<br><br>Maria calls this man <em>Panda</em>. And there's a reason for that.`,
+    puzzle: "choice",
+    instruction: "What is Lady Maria's loving name for Sir Rafal?",
+    options: [
+      { text: "\u{1F981} The Lion — fierce and brave", correct: false, response: "He IS brave, but this isn't the one. Think softer. Warmer." },
+      { text: "\u{1F43C} Panda — strong yet gentle", correct: true, response: "YES! Panda. Because despite being the strongest, most opinionated, loudest man in the room... he is gentle. He is warm. He is Maria's Panda." },
+      { text: "\u{1F43B} The Bear — powerful and wild", correct: false, response: "Powerful yes, but the name is even more endearing than that." },
+      { text: "\u{1F985} The Eagle — soaring above all", correct: false, response: "He does soar, but Maria's name for him is much more cuddly." }
+    ],
+    successMsg: "Panda. A man of steel principles and a heart of pure gold. The treasure chamber awaits..."
+  },
+
+  // LEVEL 10: The Greatest Treasure
+  {
+    title: "The Greatest Treasure",
+    emoji: "\u{1F451}",
+    story: `<span class="narrator">The Final Chapter.</span> At last, Sir Rafal stood before the treasure vault. The doors bore an inscription in ancient runes:<br><br><em>"This vault opens only once every 40 years, for those bold enough to leave their homeland, brave enough to build a new life, and strong enough to carry everyone they love in their heart across any distance."</em><br><br>Sir Rafal placed his calloused, craftsman hands on the ancient doors. They recognized him — a man who fixes engines and builds furniture, who tracks his macros and watches insect documentaries, who talks endlessly and loves fiercely, who left Poland and found a home in Norway without ever losing who he is.<br><br>The doors began to glow...<br><br>But first, one final question.`,
+    puzzle: "final",
+    instruction: "The vault asks: What milestone does Sir Rafal celebrate today?",
+    answer: "BIRTHDAY",
+    accept: ["BIRTHDAY", "40", "40TH BIRTHDAY", "HIS BIRTHDAY", "RAFALS BIRTHDAY", "BURSDAG", "URODZINY", "FORTIETH BIRTHDAY"],
+    hint: "A very special day for a very special knight... he's turning a landmark number...",
+    successMsg: null
+  }
+];
+
+// ===== RENDER FUNCTIONS =====
+
+function createEmbers() {
+  const container = document.getElementById('embers');
+  for (let i = 0; i < 40; i++) {
+    const ember = document.createElement('div');
+    ember.className = 'ember';
+    const size = Math.random() * 6 + 2;
+    ember.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      left: ${Math.random() * 100}%; top: ${Math.random() * 100}%;
+      --dur: ${Math.random() * 4 + 3}s;
+      --drift: ${Math.random() * 30 + 10}px;
+      animation-delay: ${Math.random() * 4}s;
+    `;
+    container.appendChild(ember);
+  }
+}
+
+function updateProgress() {
+  const pct = (state.level / 10) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function runKnight() {
+  const k = document.createElement('div');
+  k.className = 'knight-run';
+  k.textContent = '\u{2694}\u{FE0F}\u{1F3C3}\u{1F4A8}';
+  document.body.appendChild(k);
+  setTimeout(() => k.remove(), 4500);
+}
+
+function launchConfetti() {
+  const colors = ['#d4a843', '#ff6b6b', '#6bff8a', '#6bb5ff', '#ff6bff', '#8b5e3c'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      --fall-dur: ${Math.random() * 2 + 2}s;
+      animation-delay: ${Math.random() * 1}s;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      width: ${Math.random() * 8 + 6}px;
+      height: ${Math.random() * 8 + 6}px;
+    `;
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 5000);
+  }
+}
+
+function renderTitle() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="title-screen">
+      <span class="shield">\u{1F6E1}\u{FE0F}\u{2694}\u{FE0F}</span>
+      <h1>The Legend of Sir Rafal</h1>
+      <p class="subtitle">A Medieval Tale of a Polish Knight Who Journeyed North</p>
+      <p class="tagline">
+        *approximately 3% historically accurate, 97% ridiculously true*<br><br>
+        A tale of craftsmanship, courage, insect documentaries, and discovering<br>
+        that the greatest treasure a knight can find is the life he builds with his own hands.
+      </p>
+      <button class="btn" onclick="startGame()">Begin the Quest</button>
+    </div>
+  `;
+}
+
+function renderLevel(num) {
+  const lvl = levels[num];
+  const app = document.getElementById('app');
+
+  let puzzleHTML = '';
+
+  if (lvl.puzzle === 'unscramble') {
+    puzzleHTML = renderUnscramble(lvl);
+  } else if (lvl.puzzle === 'choice' || lvl.puzzle === 'murder') {
+    puzzleHTML = renderChoice(lvl);
+  } else if (lvl.puzzle === 'sequence') {
+    puzzleHTML = renderTextInput(lvl);
+  } else if (lvl.puzzle === 'riddle') {
+    puzzleHTML = renderRiddle(lvl);
+  } else if (lvl.puzzle === 'matching') {
+    puzzleHTML = renderMatching(lvl);
+  } else if (lvl.puzzle === 'final') {
+    puzzleHTML = renderTextInput(lvl);
+  }
+
+  app.innerHTML = `
+    <div class="level-screen">
+      <div class="level-header">Chapter ${num} of 10</div>
+      <span class="level-emoji">${lvl.emoji}</span>
+      <h2 class="level-title">${lvl.title}</h2>
+      <div class="story-text">${lvl.story}</div>
+      <div class="puzzle-area">
+        <p class="puzzle-instruction">${lvl.instruction}</p>
+        ${puzzleHTML}
+        <div id="feedback"></div>
+      </div>
+      <button class="btn" id="nextBtn" style="display:none;" onclick="nextLevel()">Continue the Quest \u{2192}</button>
+    </div>
+  `;
+
+  if (lvl.puzzle === 'matching') initMatching(lvl);
+}
+
+function renderUnscramble(lvl) {
+  const letters = lvl.scrambled.split('');
+  return `
+    <div class="answer-display" id="answerDisplay"></div>
+    <div class="sequence-area" id="letterArea">
+      ${letters.map((l, i) => `<div class="seq-letter" onclick="pickLetter(this, ${i})">${l}</div>`).join('')}
+    </div>
+    <button class="btn clear-btn" onclick="clearUnscramble()">Clear</button>
+  `;
+}
+
+function renderChoice(lvl) {
+  return `
+    <div class="options-grid" id="optionsGrid">
+      ${lvl.options.map((opt, i) => `
+        <div class="option-btn" onclick="pickOption(${i})">${opt.text}</div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderTextInput(lvl) {
+  return `
+    ${lvl.riddle ? `<p style="font-size:1.1rem; color: var(--cream); line-height: 1.8; margin: 15px 0;">${lvl.riddle}</p>` : ''}
+    <input class="answer-input" id="textAnswer" placeholder="Type your answer..."
+      onkeydown="if(event.key==='Enter')checkTextAnswer()">
+    <br>
+    <button class="btn btn-small" onclick="checkTextAnswer()" style="margin-top:10px;">Submit</button>
+  `;
+}
+
+function renderRiddle(lvl) {
+  return renderTextInput(lvl);
+}
+
+function renderMatching(lvl) {
+  return `
+    <div class="match-container">
+      <div class="match-left" id="matchLeft">
+        ${lvl.pairs.map((p, i) => `<div class="match-item" data-idx="${i}" data-side="left" onclick="pickMatch(this)">${p.left}</div>`).join('')}
+      </div>
+      <div class="match-divider">\u{2192}</div>
+      <div class="match-right" id="matchRight">
+        ${shuffleArray(lvl.pairs.map((p, i) => ({text: p.right, idx: i}))).map(p => `<div class="match-item" data-idx="${p.idx}" data-side="right" onclick="pickMatch(this)">${p.text}</div>`).join('')}
+      </div>
+    </div>
+    <div id="matchCount" style="color: var(--gold); margin-top: 10px; font-family: Inter, sans-serif; font-size: 0.85rem;">Matched: 0 / ${lvl.pairs.length}</div>
+  `;
+}
+
+// ===== PUZZLE LOGIC =====
+
+// Unscramble
+let currentWord = '';
+window.pickLetter = function(el, idx) {
+  if (el.classList.contains('used')) return;
+  el.classList.add('used');
+  currentWord += el.textContent;
+  document.getElementById('answerDisplay').textContent = currentWord;
+
+  const lvl = levels[state.level];
+  if (currentWord.length === lvl.answer.length) {
+    if (currentWord === lvl.answer) {
+      showCorrect(lvl.successMsg);
+    } else {
+      showWrong("Hmm, that's not quite right. Try again!");
+      setTimeout(clearUnscramble, 1000);
+    }
+  }
+};
+
+window.clearUnscramble = function() {
+  currentWord = '';
+  document.getElementById('answerDisplay').textContent = '';
+  document.querySelectorAll('.seq-letter').forEach(el => el.classList.remove('used'));
+};
+
+// Choice
+window.pickOption = function(idx) {
+  const lvl = levels[state.level];
+  const opt = lvl.options[idx];
+  const btns = document.querySelectorAll('.option-btn');
+
+  btns.forEach((btn, i) => {
+    if (i === idx) {
+      btn.classList.add(opt.correct ? 'correct' : 'wrong');
+    }
+  });
+
+  if (opt.correct) {
+    showFeedback(opt.response, 'correct');
+    setTimeout(() => showCorrect(lvl.successMsg), 1500);
+  } else {
+    showFeedback(opt.response, 'wrong');
+    setTimeout(() => {
+      btns[idx].classList.remove('wrong');
+      document.getElementById('feedback').innerHTML = '';
+    }, 2000);
+  }
+};
+
+// Text input
+window.checkTextAnswer = function() {
+  const lvl = levels[state.level];
+  const input = document.getElementById('textAnswer');
+  const val = input.value.trim().toUpperCase();
+
+  const validAnswers = [lvl.answer, ...(lvl.accept || [])].map(a => a.toUpperCase());
+
+  if (validAnswers.includes(val)) {
+    if (state.level === 10) {
+      showFinalScreen();
+    } else {
+      showCorrect(lvl.successMsg);
+    }
+  } else {
+    showFeedback(lvl.hint || "Not quite! Try again.", 'hint');
+    input.value = '';
+    input.focus();
+  }
+};
+
+// Matching
+let matchState = { selected: null, matched: 0, total: 0 };
+
+function initMatching(lvl) {
+  matchState = { selected: null, matched: 0, total: lvl.pairs.length };
+}
+
+window.pickMatch = function(el) {
+  if (el.classList.contains('matched')) return;
+
+  if (!matchState.selected) {
+    matchState.selected = el;
+    el.classList.add('active');
+  } else {
+    const first = matchState.selected;
+    const second = el;
+
+    if (first.dataset.side === second.dataset.side) {
+      first.classList.remove('active');
+      matchState.selected = el;
+      el.classList.add('active');
+      return;
+    }
+
+    const leftEl = first.dataset.side === 'left' ? first : second;
+    const rightEl = first.dataset.side === 'right' ? first : second;
+
+    if (leftEl.dataset.idx === rightEl.dataset.idx) {
+      leftEl.classList.remove('active');
+      leftEl.classList.add('matched');
+      rightEl.classList.add('matched');
+      matchState.matched++;
+      document.getElementById('matchCount').textContent = `Matched: ${matchState.matched} / ${matchState.total}`;
+
+      if (matchState.matched === matchState.total) {
+        const lvl = levels[state.level];
+        setTimeout(() => showCorrect(lvl.successMsg), 500);
+      }
+    } else {
+      first.classList.remove('active');
+      second.classList.add('active');
+      showFeedback("Not quite! Try a different match.", 'wrong');
+      setTimeout(() => {
+        second.classList.remove('active');
+        document.getElementById('feedback').innerHTML = '';
+      }, 1000);
+    }
+    matchState.selected = null;
+  }
+};
+
+// ===== HELPERS =====
+
+function showFeedback(msg, type) {
+  document.getElementById('feedback').innerHTML = `<div class="feedback ${type}">${msg}</div>`;
+}
+
+function showWrong(msg) {
+  showFeedback(msg, 'wrong');
+}
+
+function showCorrect(msg) {
+  showFeedback(msg, 'correct');
+  runKnight();
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function showFinalScreen() {
+  launchConfetti();
+  setTimeout(launchConfetti, 1500);
+  setTimeout(launchConfetti, 3000);
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="final-screen">
+      <div class="final-emoji">\u{1F6E1}\u{FE0F}\u{1F382}\u{2728}</div>
+      <h1>Happy 40th Birthday, Rafal!</h1>
+      <div class="birthday-text">
+        You made it through all 10 chapters!<br><br>
+        From the workshops of Poland<br>
+        to the fjords of Norway...<br><br>
+        You crossed seas, mastered engines,<br>
+        cooked legendary feasts (and destroyed kitchens),<br>
+        secretly learned Norwegian,<br>
+        and became the strongest, most dependable<br>
+        knight anyone could ask for.<br><br>
+        <span style="color: var(--gold); font-size: 1.5rem;">The greatest treasure is the life you've built, Panda.</span><br><br>
+        <span class="podcast" style="font-size: 2rem;">PODCAST MODE: FOREVER! \u{1F3A4}</span><br><br>
+        <em style="color: #aaa;">Happy birthday from your family who<br>
+        definitely did NOT make an entire medieval website just for you.<br>
+        (Okay, they did. Because you're worth it, Panda.)</em><br><br>
+        <span style="font-size: 2rem;">\u{1F1F5}\u{1F1F1} \u{2764}\u{FE0F} \u{1F1F3}\u{1F1F4}</span>
+      </div>
+      <button class="btn" onclick="showGiftReveal()" id="claimPrizeBtn">But wait... claim your royal reward! \u{1F381}</button>
+    </div>
+  `;
+
+  document.getElementById('progressBar').style.width = '100%';
+}
+
+function launchSparkles() {
+  const emojis = ['\u{2728}', '\u{1F4AB}', '\u{2B50}', '\u{1F31F}', '\u{1F49B}', '\u{1F6E1}\u{FE0F}'];
+  for (let i = 0; i < 25; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'gift-sparkle';
+    sparkle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    sparkle.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      top: ${30 + Math.random() * 60}vh;
+      --dur: ${Math.random() * 2 + 1.5}s;
+      animation-delay: ${Math.random() * 2}s;
+    `;
+    document.body.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 5000);
+  }
+}
+
+window.showGiftReveal = function() {
+  launchConfetti();
+  launchSparkles();
+  setTimeout(launchConfetti, 1000);
+  setTimeout(launchSparkles, 800);
+  setTimeout(launchConfetti, 2500);
+  setTimeout(launchSparkles, 2000);
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="gift-reveal">
+      <div class="final-emoji">\u{1F381}\u{1F6E1}\u{FE0F}\u{2728}</div>
+      <h1>Every Knight Deserves a Legendary Reward</h1>
+      <p class="gift-subtitle">You conquered the quest. Now... take the leap.</p>
+
+      <div class="adventure-title">Telemark Opplevelser</div>
+      <p style="color: #aaa; font-size: 0.95rem; margin-bottom: 5px;">A bungee jumping adventure fit for a fearless knight</p>
+      <p style="color: var(--gold); font-size: 1.1rem; margin-bottom: 20px;"><strong>KR 1 590</strong> \u{2014} Gift Card Code: <strong>85Ldg52</strong></p>
+
+      <div class="gift-card-container">
+        <iframe src="giftcard.pdf" width="380" height="540" title="Telemark Opplevelser Gift Card"></iframe>
+      </div>
+
+      <div class="gift-message">
+        You left Poland and built an incredible life in Norway.<br>
+        You fix ferries, build furniture, cook feasts,<br>
+        track macros, watch insects at midnight,<br>
+        and never, ever stop talking.<br><br>
+        Now it's time to take the ULTIMATE leap \u{2014}<br>
+        literally. Off a bridge. With a rope attached.<br><br>
+        <span class="podcast">PODCAST MODE: SCREAMING EDITION!</span><br><br>
+        <span style="color: var(--gold);">Panda er endelig 40 \u00E5r \u{2014} hopp inn i din nye epoke.</span><br>
+        <span style="color: var(--gold);">Elsker deg \u{2764}\u{FE0F} fra Maria</span>
+      </div>
+
+      <p style="color: #888; font-size: 0.85rem; margin-bottom: 10px;">Valid until 22.02.2027 \u{2022} Redeem at telemark-opplevelser.bilberry.app</p>
+
+      <a class="gift-download-btn" href="giftcard.pdf" download="Rafal-Bungee-GiftCard.pdf">
+        Download Your Gift Card \u{1F381}
+      </a>
+
+      <br><br>
+      <button class="btn" onclick="location.reload()" style="margin-top: 15px; border-color: #555; color: #888;">Play Again? \u{2694}\u{FE0F}</button>
+    </div>
+  `;
+
+  setTimeout(launchSparkles, 3500);
+  setTimeout(launchConfetti, 4000);
+};
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ===== NAVIGATION =====
+
+window.startGame = function() {
+  state.level = 1;
+  updateProgress();
+  renderLevel(1);
+};
+
+window.nextLevel = function() {
+  state.level++;
+  updateProgress();
+  if (state.level > 10) {
+    showFinalScreen();
+  } else {
+    currentWord = '';
+    renderLevel(state.level);
+  }
+};
+
+// ===== INIT =====
+createEmbers();
+renderTitle();
+</script>
+
+</body>
+</html>
