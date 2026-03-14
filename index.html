@@ -1107,7 +1107,8 @@ function showWrong(msg) {
 }
 
 function showCorrect(msg) {
-  showFeedback(msg, 'correct');
+  const fb = document.getElementById('feedback');
+  fb.innerHTML += `<div class="feedback correct" style="margin-top:10px;">${msg}</div>`;
   runKnight();
   document.getElementById('nextBtn').style.display = 'inline-block';
 }
