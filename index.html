@@ -916,7 +916,10 @@ function renderLevel(num) {
         ${puzzleHTML}
         <div id="feedback"></div>
       </div>
-      <button class="btn" id="nextBtn" style="display:none;" onclick="nextLevel()">Continue the Quest \u{2192}</button>
+      <div style="margin-top:15px; display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap;">
+        <button class="btn btn-small" id="prevBtn" style="${num > 1 ? '' : 'display:none;'} border-color:#555; color:#888;" onclick="prevLevel()">\u{2190} Go Back</button>
+        <button class="btn" id="nextBtn" style="display:none;" onclick="nextLevel()">Continue the Quest \u{2192}</button>
+      </div>
     </div>
   `;
 
@@ -1244,6 +1247,15 @@ window.tryPassword = function() {
     fb.innerHTML = '<div class="feedback wrong" style="margin-top:10px;">Wrong password. Complete the quest to earn it!</div>';
     input.value = '';
     setTimeout(() => { fb.innerHTML = ''; }, 2500);
+  }
+};
+
+window.prevLevel = function() {
+  if (state.level > 1) {
+    state.level--;
+    updateProgress();
+    currentWord = '';
+    renderLevel(state.level);
   }
 };
 
