@@ -1251,10 +1251,12 @@ window.tryPassword = function() {
 window.prevLevel = function() {
   if (state.level <= 1) {
     state.level = 0;
+    saveProgress();
     updateProgress();
     renderTitle();
   } else {
     state.level--;
+    saveProgress();
     updateProgress();
     currentWord = '';
     renderLevel(state.level);
