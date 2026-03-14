@@ -566,6 +566,54 @@
   .slider-row input[type="range"] { flex: 1; accent-color: var(--gold); }
   .slider-value { color: var(--gold); font-weight: 600; min-width: 30px; }
 
+  /* ===== PASSWORD FIELD ===== */
+  .password-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(212,168,67,0.15);
+  }
+  .password-section label {
+    font-family: 'Inter', sans-serif;
+    color: #666;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .password-input {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    padding: 10px 16px;
+    border: 1px solid rgba(212,168,67,0.25);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    color: var(--cream);
+    text-align: center;
+    width: 200px;
+    outline: none;
+    transition: all 0.3s;
+  }
+  .password-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 15px rgba(255,150,50,0.2);
+  }
+  .password-input::placeholder { color: #444; }
+  .password-reveal {
+    margin-top: 20px;
+    padding: 15px 20px;
+    background: rgba(212,168,67,0.1);
+    border: 1px dashed rgba(212,168,67,0.4);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: #aaa;
+  }
+  .password-reveal code {
+    color: var(--gold);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 500px) {
     .options-grid { grid-template-columns: 1fr; }
@@ -584,7 +632,24 @@
 
 <script>
 // ===== GAME STATE =====
+const SECRET_PASSWORD = 'PANDA40';
+const SAVE_KEY = 'rafal_escape_progress';
 const state = { level: 0, attempts: {} };
+
+function saveProgress() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ level: state.level })); } catch(e) {}
+}
+
+function loadProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    return saved && saved.level ? saved.level : 0;
+  } catch(e) { return 0; }
+}
+
+function clearProgress() {
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+}
 
 // ===== LEVEL DATA =====
 const levels = [
@@ -808,6 +873,14 @@ function renderTitle() {
         that the greatest treasure a knight can find is the life he builds with his own hands.
       </p>
       <button class="btn" onclick="startGame()">Begin the Quest</button>
+      <div class="password-section">
+        <label>Have the secret password? Enter it to skip ahead:</label>
+        <input class="password-input" id="passwordInput" type="password" placeholder="\u{1F512} Password..."
+          onkeydown="if(event.key==='Enter')tryPassword()">
+        <br>
+        <button class="btn btn-small" onclick="tryPassword()" style="margin-top:8px; border-color: #555; color: #888;">Unlock</button>
+        <div id="passwordFeedback"></div>
+      </div>
     </div>
   `;
 }
@@ -1040,6 +1113,8 @@ function showCorrect(msg) {
 }
 
 function showFinalScreen() {
+  state.level = 11;
+  saveProgress();
   launchConfetti();
   setTimeout(launchConfetti, 1500);
   setTimeout(launchConfetti, 3000);
@@ -1130,8 +1205,13 @@ window.showGiftReveal = function() {
         Download Your Gift Card \u{1F381}
       </a>
 
-      <br><br>
-      <button class="btn" onclick="location.reload()" style="margin-top: 15px; border-color: #555; color: #888;">Play Again? \u{2694}\u{FE0F}</button>
+      <div class="password-reveal">
+        Want to come back here directly next time?<br>
+        Use this secret password on the title screen: <code>PANDA40</code>
+      </div>
+
+      <br>
+      <button class="btn" onclick="clearProgress();location.reload()" style="margin-top: 15px; border-color: #555; color: #888;">Play Again? \u{2694}\u{FE0F}</button>
     </div>
   `;
 
@@ -1150,14 +1230,32 @@ function shuffleArray(arr) {
 
 // ===== NAVIGATION =====
 
+window.tryPassword = function() {
+  const input = document.getElementById('passwordInput');
+  const val = input.value.trim().toUpperCase();
+  if (val === SECRET_PASSWORD) {
+    state.level = 11;
+    saveProgress();
+    updateProgress();
+    showGiftReveal();
+  } else {
+    const fb = document.getElementById('passwordFeedback');
+    fb.innerHTML = '<div class="feedback wrong" style="margin-top:10px;">Wrong password. Complete the quest to earn it!</div>';
+    input.value = '';
+    setTimeout(() => { fb.innerHTML = ''; }, 2500);
+  }
+};
+
 window.startGame = function() {
   state.level = 1;
+  saveProgress();
   updateProgress();
   renderLevel(1);
 };
 
 window.nextLevel = function() {
   state.level++;
+  saveProgress();
   updateProgress();
   if (state.level > 10) {
     showFinalScreen();
@@ -1169,7 +1267,20 @@ window.nextLevel = function() {
 
 // ===== INIT =====
 createEmbers();
-renderTitle();
+
+// Restore progress on load
+const savedLevel = loadProgress();
+if (savedLevel > 10) {
+  state.level = savedLevel;
+  updateProgress();
+  showGiftReveal();
+} else if (savedLevel > 0) {
+  state.level = savedLevel;
+  updateProgress();
+  renderLevel(savedLevel);
+} else {
+  renderTitle();
+}
 </script>
 
 </body>
