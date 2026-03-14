@@ -907,6 +907,7 @@ function renderLevel(num) {
 
   app.innerHTML = `
     <div class="level-screen">
+      ${num > 1 ? '<button class="btn btn-small" onclick="prevLevel()" style="border-color:#555; color:#888; margin-bottom:15px; align-self:flex-start;">\u{2190} Go Back</button>' : ''}
       <div class="level-header">Chapter ${num} of 10</div>
       <span class="level-emoji">${lvl.emoji}</span>
       <h2 class="level-title">${lvl.title}</h2>
@@ -916,10 +917,7 @@ function renderLevel(num) {
         ${puzzleHTML}
         <div id="feedback"></div>
       </div>
-      <div style="margin-top:15px; display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap;">
-        <button class="btn btn-small" id="prevBtn" style="${num > 1 ? '' : 'display:none;'} border-color:#555; color:#888;" onclick="prevLevel()">\u{2190} Go Back</button>
-        <button class="btn" id="nextBtn" style="display:none;" onclick="nextLevel()">Continue the Quest \u{2192}</button>
-      </div>
+      <button class="btn" id="nextBtn" style="display:none;" onclick="nextLevel()">Continue the Quest \u{2192}</button>
     </div>
   `;
 
